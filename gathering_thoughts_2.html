@@ -1,0 +1,686 @@
+<!DOCTYPE html>
+<html lang="fr"
+>
+<head>
+    <title>From leg-joint to tyssue, a refactoring story - Ep. 2 - Morphogénie Logiciels</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+
+<style type="text/css">
+
+/*some stuff for output/input prompts*/
+div.cell{border:1px solid transparent;display:-webkit-box;-webkit-box-orient:vertical;-webkit-box-align:stretch;display:-moz-box;-moz-box-orient:vertical;-moz-box-align:stretch;display:box;box-orient:vertical;box-align:stretch;display:flex;flex-direction:column;align-items:stretch}div.cell.selected{border-radius:4px;border:thin #ababab solid}
+div.cell.edit_mode{border-radius:4px;border:thin #008000 solid}
+div.cell{width:100%;padding:5px 5px 5px 0;margin:0;outline:none}
+div.prompt{min-width:11ex;padding:.4em;margin:0;font-family:monospace;text-align:right;line-height:1.21429em}
+@media (max-width:480px){div.prompt{text-align:left}}div.inner_cell{display:-webkit-box;-webkit-box-orient:vertical;-webkit-box-align:stretch;display:-moz-box;-moz-box-orient:vertical;-moz-box-align:stretch;display:box;box-orient:vertical;box-align:stretch;display:flex;flex-direction:column;align-items:stretch;-webkit-box-flex:1;-moz-box-flex:1;box-flex:1;flex:1}
+div.input_area{border:1px solid #cfcfcf;border-radius:4px;background:#f7f7f7;line-height:1.21429em}
+div.prompt:empty{padding-top:0;padding-bottom:0}
+div.input{page-break-inside:avoid;display:-webkit-box;-webkit-box-orient:horizontal;-webkit-box-align:stretch;display:-moz-box;-moz-box-orient:horizontal;-moz-box-align:stretch;display:box;box-orient:horizontal;box-align:stretch;}
+div.inner_cell{width:90%;}
+div.input_area{border:1px solid #cfcfcf;border-radius:4px;background:#f7f7f7;}
+div.input_prompt{color:navy;border-top:1px solid transparent;}
+div.output_wrapper{margin-top:5px;position:relative;display:-webkit-box;-webkit-box-orient:vertical;-webkit-box-align:stretch;display:-moz-box;-moz-box-orient:vertical;-moz-box-align:stretch;display:box;box-orient:vertical;box-align:stretch;width:100%;}
+div.output_scroll{height:24em;width:100%;overflow:auto;border-radius:4px;-webkit-box-shadow:inset 0 2px 8px rgba(0, 0, 0, 0.8);-moz-box-shadow:inset 0 2px 8px rgba(0, 0, 0, 0.8);box-shadow:inset 0 2px 8px rgba(0, 0, 0, 0.8);}
+div.output_collapsed{margin:0px;padding:0px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-box-align:stretch;display:-moz-box;-moz-box-orient:vertical;-moz-box-align:stretch;display:box;box-orient:vertical;box-align:stretch;width:100%;}
+div.out_prompt_overlay{height:100%;padding:0px 0.4em;position:absolute;border-radius:4px;}
+div.out_prompt_overlay:hover{-webkit-box-shadow:inset 0 0 1px #000000;-moz-box-shadow:inset 0 0 1px #000000;box-shadow:inset 0 0 1px #000000;background:rgba(240, 240, 240, 0.5);}
+div.output_prompt{color:darkred;}
+
+a.anchor-link:link{text-decoration:none;padding:0px 20px;visibility:hidden;}
+h1:hover .anchor-link,h2:hover .anchor-link,h3:hover .anchor-link,h4:hover .anchor-link,h5:hover .anchor-link,h6:hover .anchor-link{visibility:visible;}
+/* end stuff for output/input prompts*/
+
+
+.highlight-ipynb .hll { background-color: #ffffcc }
+.highlight-ipynb  { background: #f8f8f8; }
+.highlight-ipynb .c { color: #408080; font-style: italic } /* Comment */
+.highlight-ipynb .err { border: 1px solid #FF0000 } /* Error */
+.highlight-ipynb .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight-ipynb .o { color: #666666 } /* Operator */
+.highlight-ipynb .cm { color: #408080; font-style: italic } /* Comment.Multiline */
+.highlight-ipynb .cp { color: #BC7A00 } /* Comment.Preproc */
+.highlight-ipynb .c1 { color: #408080; font-style: italic } /* Comment.Single */
+.highlight-ipynb .cs { color: #408080; font-style: italic } /* Comment.Special */
+.highlight-ipynb .gd { color: #A00000 } /* Generic.Deleted */
+.highlight-ipynb .ge { font-style: italic } /* Generic.Emph */
+.highlight-ipynb .gr { color: #FF0000 } /* Generic.Error */
+.highlight-ipynb .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight-ipynb .gi { color: #00A000 } /* Generic.Inserted */
+.highlight-ipynb .go { color: #888888 } /* Generic.Output */
+.highlight-ipynb .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight-ipynb .gs { font-weight: bold } /* Generic.Strong */
+.highlight-ipynb .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight-ipynb .gt { color: #0044DD } /* Generic.Traceback */
+.highlight-ipynb .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight-ipynb .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight-ipynb .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight-ipynb .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight-ipynb .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight-ipynb .kt { color: #B00040 } /* Keyword.Type */
+.highlight-ipynb .m { color: #666666 } /* Literal.Number */
+.highlight-ipynb .s { color: #BA2121 } /* Literal.String */
+.highlight-ipynb .na { color: #7D9029 } /* Name.Attribute */
+.highlight-ipynb .nb { color: #008000 } /* Name.Builtin */
+.highlight-ipynb .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.highlight-ipynb .no { color: #880000 } /* Name.Constant */
+.highlight-ipynb .nd { color: #AA22FF } /* Name.Decorator */
+.highlight-ipynb .ni { color: #999999; font-weight: bold } /* Name.Entity */
+.highlight-ipynb .ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+.highlight-ipynb .nf { color: #0000FF } /* Name.Function */
+.highlight-ipynb .nl { color: #A0A000 } /* Name.Label */
+.highlight-ipynb .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.highlight-ipynb .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight-ipynb .nv { color: #19177C } /* Name.Variable */
+.highlight-ipynb .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.highlight-ipynb .w { color: #bbbbbb } /* Text.Whitespace */
+.highlight-ipynb .mf { color: #666666 } /* Literal.Number.Float */
+.highlight-ipynb .mh { color: #666666 } /* Literal.Number.Hex */
+.highlight-ipynb .mi { color: #666666 } /* Literal.Number.Integer */
+.highlight-ipynb .mo { color: #666666 } /* Literal.Number.Oct */
+.highlight-ipynb .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight-ipynb .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight-ipynb .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight-ipynb .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight-ipynb .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+.highlight-ipynb .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight-ipynb .si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+.highlight-ipynb .sx { color: #008000 } /* Literal.String.Other */
+.highlight-ipynb .sr { color: #BB6688 } /* Literal.String.Regex */
+.highlight-ipynb .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight-ipynb .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight-ipynb .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight-ipynb .vc { color: #19177C } /* Name.Variable.Class */
+.highlight-ipynb .vg { color: #19177C } /* Name.Variable.Global */
+.highlight-ipynb .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight-ipynb .il { color: #666666 } /* Literal.Number.Integer.Long */
+</style>
+
+<style type="text/css">
+/* Overrides of notebook CSS for static HTML export */
+div.entry-content {
+  overflow: visible;
+  padding: 8px;
+}
+.input_area {
+  padding: 0.2em;
+}
+
+a.heading-anchor {
+ white-space: normal;
+}
+
+.rendered_html
+code {
+ font-size: .8em;
+}
+
+pre.ipynb {
+  color: black;
+  background: #f7f7f7;
+  border: none;
+  box-shadow: none;
+  margin-bottom: 0;
+  padding: 0;
+  margin: 0px;
+  font-size: 13px;
+}
+
+/* remove the prompt div from text cells */
+div.text_cell .prompt {
+    display: none;
+}
+
+/* remove horizontal padding from text cells, */
+/* so it aligns with outer body text */
+div.text_cell_render {
+    padding: 0.5em 0em;
+}
+
+img.anim_icon{padding:0; border:0; vertical-align:middle; -webkit-box-shadow:none; -box-shadow:none}
+</style>
+
+<script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+<script type="text/javascript">
+init_mathjax = function() {
+    if (window.MathJax) {
+        // MathJax loaded
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                displayMath: [ ['$$','$$'], ["\\[","\\]"] ]
+            },
+            displayAlign: 'left', // Change this to 'center' to center equations.
+            "HTML-CSS": {
+                styles: {'.MathJax_Display': {"margin": 0}}
+            }
+        });
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    }
+}
+init_mathjax();
+</script>
+    <link href="http://morphogenie.fr/images/favicon.png" rel="icon">
+
+<link rel="canonical" href="http://morphogenie.fr/gathering_thoughts_2.html">
+
+        <meta name="author" content="Guillaume Gay" />
+        <meta name="keywords" content="drosophila,modeling,python,scipy" />
+        <meta name="description" content="I’m giving a talk at Euroscipy ‘15 in two weeks \o/ \o/… This post is a place to gather thoughts on the leg-joint and tyssue libraries, of which I’ll be talking - episode 2 of 3." />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="http://morphogenie.fr/theme/css/bootstrap.cosmo.min.css" type="text/css"/>
+    <link href="http://morphogenie.fr/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="http://morphogenie.fr/theme/css/pygments/native.css" rel="stylesheet">
+        <link href="http://morphogenie.fr/theme/css/typogrify.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://morphogenie.fr/theme/css/style.css" type="text/css"/>
+
+        <link href="http://morphogenie.fr/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Morphogénie Logiciels ATOM Feed"/>
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+      <div class="navbar-left">
+            <a href="http://morphogenie.fr/" class="navbar-brand">
+<img align="left" src="http://morphogenie.fr/images/logo_blackbg.png" width=""/>             </a>
+      </div>
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/pages/aboutus.html">About Morphogénie</a></li>
+                    <li><a href="/pages/projects.html">Projects</a></li>
+                    <li><a href="/pages/what-we-do.html">Services</a></li>
+                    <li><a href="/pages/tools.html">Tools</a></li>
+                    <li><a href="/pages/contact.html">Contact</a></li>
+                        <li class="active">
+                            <a href="http://morphogenie.fr/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="http://morphogenie.fr/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://morphogenie.fr/gathering_thoughts_2.html"
+                       rel="bookmark"
+                       title="Permalink to From leg-joint to tyssue, a refactoring story - Ep. 2">
+                        From leg-joint to tyssue, a refactoring story - Ep.&nbsp;2
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2015-08-21T00:00:00+02:00"> ven. 21 août 2015</time>
+    </span>
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://morphogenie.fr/tag/drosophila.html">drosophila</a>
+        /
+	<a href="http://morphogenie.fr/tag/modeling.html">modeling</a>
+        /
+	<a href="http://morphogenie.fr/tag/python.html">python</a>
+        /
+	<a href="http://morphogenie.fr/tag/scipy.html">scipy</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>That&#8217;s the second blog post of three reflecting on the&nbsp;modeling.</p>
+<ol>
+<li><a href="gathering_thoughts.html">Performance</a> - read this first&nbsp;!</li>
+<li>Future plans - the future is already&nbsp;here</li>
+<li>Visualization - even more future&nbsp;!</li>
+</ol>
+<h4>Previously</h4>
+<p>I started optimizing, then refactoring the <code>leg-joint</code> code to gain performance.
+As I was doing this, I realized it would be cleverer to go all the way back to
+the drawing board (actually a paper notebook), as maybe some parts of the
+simulation could be re-used with different geometries. After all, many epithelia
+share common traits with the leg imaginal disk. At the same time, Magali and I
+started talking with two physicists, <a href="http://www.coulomb.univ-montp2.fr/user/francois.molino">François
+Molino</a> and  <a href="http://www.msc.univ-paris-diderot.fr/~cgay/homepage/doku.php?id=Accueil">Cyprien
+Gay</a>,
+who are applying bleeding edge soft-matter physics to biological tissues. It
+turns out Cyprien and his colleges recently published a <a href="http://dx.doi.org/10.1140/epje/i2015-15033-4">milestone
+paper</a> on continuous models; both
+were keen on trying cell based models, and the leg disk is of course very rich
+on this regard. So while I&#8217;m generalizing geometry, why not&nbsp;physics?</p>
+<h4>The road&nbsp;ahead</h4>
+<p>So how do we get&nbsp;there?</p>
+<ol>
+<li>
+<p>Classify existing biophysical tissue&nbsp;models.</p>
+</li>
+<li>
+<p>Specify the subset of said models we want to&nbsp;address.</p>
+</li>
+<li>
+<p>Try to craft an <span class="caps">API</span>.</p>
+</li>
+<li>
+<p>Choose the proper&nbsp;libraries.</p>
+</li>
+<li>
+<p>Code simple test cases (simple geometry, simple&nbsp;physics).</p>
+</li>
+<li>
+<p>Repeat from 3 until the <span class="caps">API</span> and tech are +/-&nbsp;stable&#8230;</p>
+</li>
+<li>
+<p>Implement a real world problem, same physics as in&nbsp;5.</p>
+</li>
+<li>
+<p>Try new physics at constant&nbsp;geometry.</p>
+</li>
+</ol>
+<p>The route through those points will start a bit far from&nbsp;code.</p>
+<h3>A very brief tour of the biophysical models of living&nbsp;tissues</h3>
+<p>As they imply dramatic changes in a tissue shape and organization, morphogenetic
+events have long been the focus of mechanical modeling efforts. As early as
+1917, D&#8217;Arcy Thomson exposed the underlying mathematical and physical
+relationships underpinning cells and multi-cellular organism shapes and
+dynamical behaviors (in the seminal work <a href="https://archive.org/details/ongrowthform00thom">On Growth and
+Form</a>). In recent years,
+technical progresses have provided very detailed geometrical, dynamical and
+biochemical data on morphogenetic processes, allowing for ever finer
+mathematical modeling and computer simulations. Meanwhile, many models and
+simulations have been developed. The interested reader will find a very clear,
+useful and complete discussion of the topic in <a href="http://dare.uva.nl/record/1/394902"><span class="caps">C.V.</span>T Tamulonis PhD
+dissertation</a>. Seriously, I can&#8217;t stress
+enough how this work is nice and&nbsp;complete!</p>
+<p>For now, I just drafted a tree of the different models, as a basis for the&nbsp;discussion:</p>
+<p><img alt="Tissue models family tree" src="images/models_family_tree.png"></p>
+<p>The underlying dragonfly wing is from Figure 162 of <em>On Growth and Form</em> (p.476
+of the above linked edition). On the tree tips are examples (not even close to
+exhaustive) of implementation for each models. Bold names refer to softwares,
+slanted to a researcher and it&#8217;s&nbsp;publications.</p>
+<p><strong>Continuous models</strong> deal with phenomena that span multiple cells in size, such
+that the changes in shape can be smoothed out, the detailed cell-cell
+interactions are not necessary to understand the tissue&#8217;s shape. Star among this
+huge family are organ simulations, among which the heart. To grasp the state of
+the art on the matter, <a href="http://www.scls.riken.jp/en/research/03_integration/">you should rush to see the
+video</a> of a heart
+simulation by Shu Takagi&#8217;s group at Riken. Cell agregates, such as
+multi-cellular tumor spheroids, are studied and modeled as continuous tissues.
+The paper cited above (<a href="http://dx.doi.org/10.1140/epje/i2015-15033-4">Sham Tilli et al,
+2015</a>) precisely sets down a
+formalism that includes cell biology specific components (i.e. cell population
+dynamics and re-arangements, more on that later) in a continuous dynamical
+(rheological, more precisely) framework. See <a href="http://www.msc.univ-paris-diderot.fr/~cgay/homepage/doku.php?id=publications:2014granularcontractile">Cyprien&#8217;s
+site</a>
+for more details on that. Finally, I must mention the incredible <a href="http://www.artificialbrains.com/openworm">OpenWorm
+project</a>, which tackles the
+neurobiology of C. elegans and integrates it to a mechanical (particle based)&nbsp;framework.</p>
+<p>For now let&#8217;s concentrate on <strong>Cell Based models</strong>, in which <code>leg-joint</code> fits.</p>
+<p>By definition cell based models are described by a multi-agent design pattern.
+This is where biological tissues radically differ from any other material: cells
+can <strong>act by themselves</strong> and <strong>exchange information</strong> between each others, an
+individual&#8217;s <strong>behavior</strong> influences the overall shape of the tissue. We&#8217;ll see consequences of this for the <span class="caps">API</span> design. For now, let&#8217;s go further down the&nbsp;tree.</p>
+<p>The next branching is between lattice based and lattice free&nbsp;models.</p>
+<p><em>Lattice based</em> were developed first, inheriting directly from early cybernetics
+research (Norman Wiener, John Von Neumann) on <a href="https://en.wikipedia.org/wiki/Cellular_automaton">cellular
+automata</a>. Conway&#8217;s game of
+life was described in 1970, and you can find a nice python implementation by
+Jake VanderPlas himself
+<a href="https://jakevdp.github.io/blog/2013/08/07/conways-game-of-life/">here</a>. It&#8217;s
+not a biological tissue model, really, but it captures the essence of lattice
+based modeling: cells are pixels or collections of such on a fixed grid. The
+evolution of the system is solved by looking at interactions between each pixel
+and it&#8217;s neighbors. That&#8217;s what goes on in a more detailed manner in cellular
+Potts models and their descendant the Glazier-Graner-Hogweg (<span class="caps">GGH</span>) model. These
+models are well established, and <a href="http://compucell3d.org">CompuCell3D</a> provides
+a very handy, optimized and scriptable software for defining and running <span class="caps">GGH</span>
+simulation in 2D and 3D geometries. Lattice based models are well suited to
+study phenomena such as collective migration (e.g. tumor invasion) or cell
+population dynamics. As partial differential equations can be solved across the
+grid, they can also deal with reaction-diffusion mechanisms, and thus signaling.
+That&#8217;s all nice and well, but the grid is also a constrain (if precise shapes
+are of interest), and the physics governing pixel state transition is very
+phenomenological, it does not really capture the <em>mechanical</em> aspects of the&nbsp;tissue.</p>
+<p>In <em>lattice free models</em>, the system&#8217;s space (usually 2 or 3 dimensional)  is
+continuous and the objects are described by their metric in that space. An early
+split is between models made of <em>descrete spherical elements</em>  and the ones
+relying on a <em>vector based</em> description. In the former class, cells are
+described as spheres (like in <a href="http://www.cs.ox.ac.uk/chaste/">Chaste</a>) or
+smaller particle clouds, as in the work by <a href="http://dx.doi.org/10.1103/PhysRevE.81.061906">P.E van Liedekerke et
+al.</a> cited by&nbsp;Tamulonis.</p>
+<p>The later branch divides into finite elements models (see <a href="http://dare.uva.nl/record/1/394902"><span class="caps">CVT</span> Tamulonis
+</a> again) and vertex models, where
+<code>leg-joint</code> and <code>tyssue</code> fit (ouf! as we say in French). Thanks to the close correspondence between those model architecture and the cell boundaries, they are well adapted to the description of contiguous, one cell thick tissues as the epithelium we&#8217;re interested&nbsp;in.</p>
+<p>Now that we know where we are in the grand scheme of things, let&#8217;s dig on the
+library&#8217;s structure. We&#8217;re at step 3&nbsp;already!</p>
+<h3>Library architecture and <span class="caps">API</span>&nbsp;design.</h3>
+<h4>Prolégomène: libraries vs standalone&nbsp;software.</h4>
+<p>Software can come in various forms. Traditionally, and as is the case for most
+of the works presented above, simulations would be developed in a compiled
+language such as C++ (the uncontested giant in the field) and distributed as
+standalone executables. I&#8217;m a python user, and prefer to use libraries, and
+develop by <code>import</code>ing what I need when I need it. I feel that doing development
+in the Jupyter notebook gives me a lot of freedom to explore and hack. The
+user/developer frontier is blurry in the scipy community for a good reason:
+that&#8217;s a very efficient way of developping software. So, contrary to e.g.
+<strong>Chaste</strong>, <code>tyssue</code> is designed as a modular, hackable&nbsp;library.</p>
+<h4>Object architecture and design&nbsp;patterns</h4>
+<h5>Objects to&nbsp;consider</h5>
+<p>To fix the ideas, let&#8217;s work on a minimal 2D example of what we try to model.
+Generalizing to more complex geometries is deferred to further headaches&nbsp;:-p.</p>
+<p>Here is our 2D three cells&nbsp;epithelium:</p>
+<p><img alt="A minimal 3 cells epithelium" src="images/minimal_eptm_2D.png"></p>
+<p>The epithelium contains <strong>cells</strong> indexed by Greek letters, <strong>junction
+vertices</strong>, indexed by Latin letters, and  <strong>junction edges</strong>. The blue links
+denote a <strong>neighborhoud</strong> relation between two cells. In 2D, the edges can be
+described as pairs of <em>Halfedges</em> (<a href="http://doc.cgal.org/latest/HalfedgeDS/index.html">see the documentation on Halfedge Data
+Structures in <span class="caps">CGAL</span></a>). In 3D,
+this concept is generalized by the <a href="http://doc.cgal.org/latest/Linear_cell_complex/index.html#Chapter_Linear_Cell_Complex"><em>Linear cell complex</em>
+</a>
+structure, made of connected <em>Darts</em>. Both Halfedges and Darts hold information
+on their source, target and the cell they are associated to. So the pair of
+Halfedges between vertices <span class="math">\(i\)</span> and <span class="math">\(j\)</span> should be indexed as <span class="math">\(i j, \alpha\)</span> and <span class="math">\(j
+i, \beta\)</span>. In 3D, there will be a fourth index for a given Dart, giving the
+associated face of the cell, see the discussion on Darts orbit and <span class="math">\(\beta_i\)</span>
+operators on <span class="caps">CGAL</span>&#8217;s&nbsp;doc.</p>
+<p>The ensemble of those objects and their relations is called the <strong>topology</strong> of
+the system. Perhaps abusively, said topology <em>also includes the set of
+geometrical points associated with the vertices</em> (but nothing more, see&nbsp;below).</p>
+<h4>Data&nbsp;Structures</h4>
+<p>To the topology is associated data: geometric characteristics, parameter values
+and so on. We want to be able to get and set these data by single elements  or
+through fancy indexing. Ideally, without copying it, and in a transparent way to
+the python user. But the above mentioned concepts are well defined and optimized
+in <span class="caps">CGAL</span>, and it would be a waste not to rely on all this good work. Yet, most of
+this data is irrelevant to <span class="caps">CGAL</span>: we could for example associate a color to a
+cell for representation purpose, that needs to be dynamically allocated, etc.,
+all that in an interactive python session. graph-tool does a very good job at
+managing that with <code>PropertyMaps</code>, but we  <a href="gathering_thoughts.html">saw</a> it was
+not fitting exactly our needs. Wrapping C++ and Numpy arrays is <a href="https://github.com/CellModels/tyssue/issues/5">not
+trivial</a>.</p>
+<p>So here is how I see this: let the C++ side of things completely ignore the data &#8212;
+to the exception of the positions of the vertices in space, which <span class="caps">CGAL</span> need, and
+will receive special treatment &#8212;, and just let it manage topology. This way the
+only
+<a href="http://doc.cgal.org/latest/Combinatorial_map/classCellAttribute.html"><code>CellAttribute</code></a>
+associated with a <span class="caps">CGAL</span> object is its index (plus the <code>Point</code> for&nbsp;vertices).</p>
+<p>The <span class="caps">CGAL</span>/python interface is then just a matter of passing the indices (as
+<code>std::vectors&lt;int&gt;</code>) in read only mode to python, and updating the points back and forth. Python side, the core data structure is then comprised of 3 DataFrames (4 in
+3D&nbsp;actually):</p>
+<ol>
+<li>
+<p><code>cell_df</code>, indexed by the <code>Index</code> <code>cell_idx</code></p>
+</li>
+<li>
+<p><code>jv_df</code>, indexed by the <code>Index</code> <code>jv_idx</code></p>
+</li>
+<li>
+<p><code>je_df</code>, indexed by the <code>MultiIndex</code> <code>je_idx</code>, itself comprised of a <code>(srce,
+trgt, cell)</code> triple (e.g. <span class="math">\({i, j, \alpha}\)</span>). In 3D, it
+would be a quadruple <code>(srce, trgt, face, cell)</code>.</p>
+</li>
+</ol>
+<p>Here is a sketch summarizing the above, along with the behavior and
+visualization aspects I&#8217;ll discuss&nbsp;next.</p>
+<p><img alt="Data flows and management" src="images/tyssue_data_management.svg"></p>
+<p>You can find a toy implementation (<span class="caps">CGAL</span> independent) in <a href="http://nbviewer.ipython.org/github/CellModels/tyssue/blob/master/notebooks/core_architecture/Simulation%20structures%20and%20specification.ipynb#Python-implementation-of-the-class-structure">this
+notebook</a>,
+along with examples of simple computation combining data from cells and&nbsp;junctions.</p>
+<h5>A note on&nbsp;time</h5>
+<p>I haven&#8217;t spoken of the time dimension yet. The above description gives a static
+view of the tissue. Of course, the whole goal is to look at evolutions. Time
+will be a global attribute of the system. For all the DataFrames, we can
+construct a Panel where the fourth dimension is the time component, stacking up
+static views of the tissue (this can also be achieved via a supplementary &#8216;t&#8217;
+index for each dataframe). Whether this is feasible, or it&#8217;s better to record
+the data at each time step is to be determined. For small systems, the former
+will be easier, but might not scale, and some kind of buffering might be needed
+(to be continued, data management is not my strong&nbsp;suit).</p>
+<h5>External constrains and supra cellular&nbsp;components</h5>
+<p>Further down the road, it might be necessary to include other elements, for
+example the extra-cellular matrix, which by definition is not included in this
+framework. If its shape is simple and static enough, this could be described in
+terms of a force <em>field</em> in the space surrounding the tissue. One could also
+envision a mixed continuous - cell based model, where the <span class="caps">ECM</span> is described as a
+finite elements triangulated volume. It is not clear to me how to manage contact
+points here, I&#8217;m sure that will be fun. Apart from the <span class="caps">ECM</span>, one can think of
+trans-cellular actin cables or an egg shell constraining the&nbsp;epithelium.</p>
+<p>On that matter, management of contact points and mesh collision is not trivial,
+but it looks like the great folk at <span class="caps">CGAL</span> <a href="http://stackoverflow.com/questions/22900932/cgal-meshes-intersection-collision">have this sorted out for
+us</a>.</p>
+<h5>Physics</h5>
+<p>The architecture described above describes the state space of the epithelium,
+and it&#8217;s associated parameters. We can then add physical data: forces or
+gradients, for example. If the specific columns to consider depend on the
+physics engine, the resolution of the dynamical equations (wether through
+gradient descent, ODEs, etc.) should be independent of the topology at one point during the&nbsp;simulation.</p>
+<h5>Agent-like&nbsp;behavior</h5>
+<p>As I said earlier, cells are not passive chunks of material, but <strong>individuals</strong>
+displaying different behaviors, either individually or collectively. In this
+sense, cells are agents. This must be reflected in the library architecture as
+to make it easy to translate in the simulation the biologist&#8217;s insight of the
+modeled biological scenario. Here are some&nbsp;examples:</p>
+<ul>
+<li>Cell&nbsp;growth</li>
+<li>Cell&nbsp;division</li>
+<li>
+<p>Cell intercalation (aka Type 1&nbsp;transition)</p>
+</li>
+<li>
+<p>Apoptosis</p>
+</li>
+</ul>
+<p>For each of those behaviors, one cell or a group of cells will be implicated
+(the <code>actors</code>), and some specification on the physics involved that might look
+like a list of <code>actuators</code> (I&#8217;m thinking for example at the actin apico-basal
+cable in the fold formation scenario) specifying the interactions and their
+application points. Every behavior can trigger a change in topology, requiring a
+re-indexing from <span class="caps">CGAL</span>, and sets the system off-equilibrium, which is resolved by
+the physics engine. Those concept are still in early development, and the <span class="caps">API</span> is
+still sketchy&nbsp;here.</p>
+<h5>Events, signals and&nbsp;asynchronicity</h5>
+<p>Associated with the multi-agent pattern comes the idea that those agents, the
+cells, could act asynchronously, each behavior sending signals to neighboring
+cells and the hole epithelium. At each time step, we can imagine to gather all
+the ongoing behaviors (cell 123 might divide, while cells 234, 235, 236, and 244
+undergo a type 1 transition) and solve the physics system only once for the
+whole tissue. Once again, this is still a bit sketchy, and any comments are&nbsp;welcome.</p>
+<h3>Next step: data&nbsp;viz!</h3>
+<p>This vast subject (3D! 3D+time!, <code>vispy</code>!, <code>webGL</code>!) will wait next&nbsp;post.</p>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'damcellbiology'; // required: replace example with your forum shortname
+
+                    var disqus_identifier = 'gathering_thoughts_2';
+                var disqus_url = 'http://morphogenie.fr/gathering_thoughts_2.html';
+
+            var disqus_config = function () {
+                this.language = "fr";
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3 well well-sm" id="sidebar">
+
+<aside>
+    <section>
+        <ul class="list-group list-group-flush">
+    <li class="list-group-item"><h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+      <ul class="list-group" id="links">
+        <li class="list-group-item">
+            <a href="http://scipy.org/" target="_blank">
+                Scipy
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://python.org/" target="_blank">
+                Python.org
+            </a>
+        </li>
+      </ul>
+    </li>
+                <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+                  <ul class="list-group" id="social">
+                    <li class="list-group-item"><a href="https://github.com/DamCB"><i class="fa fa-github-square fa-lg"></i> GitHub</a></li>
+                    <li class="list-group-item"><a href="https://twitter.com/MorphoLG"><i class="fa fa-twitter-square fa-lg"></i> Twitter</a></li>
+                  </ul>
+                </li>
+
+
+
+                <li class="list-group-item"><a href="http://morphogenie.fr/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+                    <ul class="list-group " id="tags">
+                    </ul>
+                </li>
+
+        </ul>
+    </section>
+
+</aside>        </div>
+    </div>
+</div>
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2016 Guillaume Gay
+            &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="http://morphogenie.fr/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="http://morphogenie.fr/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="http://morphogenie.fr/theme/js/respond.min.js"></script>
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'damcellbiology'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+</body>
+</html>

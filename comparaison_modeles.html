@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="fr"
+>
+<head>
+    <title>Un tour des différentes méthodes de modélisation - Morphogénie Logiciels</title>
+    <!-- Using the latest rendering mode for IE -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+
+
+
+<style type="text/css">
+
+/*some stuff for output/input prompts*/
+div.cell{border:1px solid transparent;display:-webkit-box;-webkit-box-orient:vertical;-webkit-box-align:stretch;display:-moz-box;-moz-box-orient:vertical;-moz-box-align:stretch;display:box;box-orient:vertical;box-align:stretch;display:flex;flex-direction:column;align-items:stretch}div.cell.selected{border-radius:4px;border:thin #ababab solid}
+div.cell.edit_mode{border-radius:4px;border:thin #008000 solid}
+div.cell{width:100%;padding:5px 5px 5px 0;margin:0;outline:none}
+div.prompt{min-width:11ex;padding:.4em;margin:0;font-family:monospace;text-align:right;line-height:1.21429em}
+@media (max-width:480px){div.prompt{text-align:left}}div.inner_cell{display:-webkit-box;-webkit-box-orient:vertical;-webkit-box-align:stretch;display:-moz-box;-moz-box-orient:vertical;-moz-box-align:stretch;display:box;box-orient:vertical;box-align:stretch;display:flex;flex-direction:column;align-items:stretch;-webkit-box-flex:1;-moz-box-flex:1;box-flex:1;flex:1}
+div.input_area{border:1px solid #cfcfcf;border-radius:4px;background:#f7f7f7;line-height:1.21429em}
+div.prompt:empty{padding-top:0;padding-bottom:0}
+div.input{page-break-inside:avoid;display:-webkit-box;-webkit-box-orient:horizontal;-webkit-box-align:stretch;display:-moz-box;-moz-box-orient:horizontal;-moz-box-align:stretch;display:box;box-orient:horizontal;box-align:stretch;}
+div.inner_cell{width:90%;}
+div.input_area{border:1px solid #cfcfcf;border-radius:4px;background:#f7f7f7;}
+div.input_prompt{color:navy;border-top:1px solid transparent;}
+div.output_wrapper{margin-top:5px;position:relative;display:-webkit-box;-webkit-box-orient:vertical;-webkit-box-align:stretch;display:-moz-box;-moz-box-orient:vertical;-moz-box-align:stretch;display:box;box-orient:vertical;box-align:stretch;width:100%;}
+div.output_scroll{height:24em;width:100%;overflow:auto;border-radius:4px;-webkit-box-shadow:inset 0 2px 8px rgba(0, 0, 0, 0.8);-moz-box-shadow:inset 0 2px 8px rgba(0, 0, 0, 0.8);box-shadow:inset 0 2px 8px rgba(0, 0, 0, 0.8);}
+div.output_collapsed{margin:0px;padding:0px;display:-webkit-box;-webkit-box-orient:vertical;-webkit-box-align:stretch;display:-moz-box;-moz-box-orient:vertical;-moz-box-align:stretch;display:box;box-orient:vertical;box-align:stretch;width:100%;}
+div.out_prompt_overlay{height:100%;padding:0px 0.4em;position:absolute;border-radius:4px;}
+div.out_prompt_overlay:hover{-webkit-box-shadow:inset 0 0 1px #000000;-moz-box-shadow:inset 0 0 1px #000000;box-shadow:inset 0 0 1px #000000;background:rgba(240, 240, 240, 0.5);}
+div.output_prompt{color:darkred;}
+
+a.anchor-link:link{text-decoration:none;padding:0px 20px;visibility:hidden;}
+h1:hover .anchor-link,h2:hover .anchor-link,h3:hover .anchor-link,h4:hover .anchor-link,h5:hover .anchor-link,h6:hover .anchor-link{visibility:visible;}
+/* end stuff for output/input prompts*/
+
+
+.highlight-ipynb .hll { background-color: #ffffcc }
+.highlight-ipynb  { background: #f8f8f8; }
+.highlight-ipynb .c { color: #408080; font-style: italic } /* Comment */
+.highlight-ipynb .err { border: 1px solid #FF0000 } /* Error */
+.highlight-ipynb .k { color: #008000; font-weight: bold } /* Keyword */
+.highlight-ipynb .o { color: #666666 } /* Operator */
+.highlight-ipynb .cm { color: #408080; font-style: italic } /* Comment.Multiline */
+.highlight-ipynb .cp { color: #BC7A00 } /* Comment.Preproc */
+.highlight-ipynb .c1 { color: #408080; font-style: italic } /* Comment.Single */
+.highlight-ipynb .cs { color: #408080; font-style: italic } /* Comment.Special */
+.highlight-ipynb .gd { color: #A00000 } /* Generic.Deleted */
+.highlight-ipynb .ge { font-style: italic } /* Generic.Emph */
+.highlight-ipynb .gr { color: #FF0000 } /* Generic.Error */
+.highlight-ipynb .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.highlight-ipynb .gi { color: #00A000 } /* Generic.Inserted */
+.highlight-ipynb .go { color: #888888 } /* Generic.Output */
+.highlight-ipynb .gp { color: #000080; font-weight: bold } /* Generic.Prompt */
+.highlight-ipynb .gs { font-weight: bold } /* Generic.Strong */
+.highlight-ipynb .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.highlight-ipynb .gt { color: #0044DD } /* Generic.Traceback */
+.highlight-ipynb .kc { color: #008000; font-weight: bold } /* Keyword.Constant */
+.highlight-ipynb .kd { color: #008000; font-weight: bold } /* Keyword.Declaration */
+.highlight-ipynb .kn { color: #008000; font-weight: bold } /* Keyword.Namespace */
+.highlight-ipynb .kp { color: #008000 } /* Keyword.Pseudo */
+.highlight-ipynb .kr { color: #008000; font-weight: bold } /* Keyword.Reserved */
+.highlight-ipynb .kt { color: #B00040 } /* Keyword.Type */
+.highlight-ipynb .m { color: #666666 } /* Literal.Number */
+.highlight-ipynb .s { color: #BA2121 } /* Literal.String */
+.highlight-ipynb .na { color: #7D9029 } /* Name.Attribute */
+.highlight-ipynb .nb { color: #008000 } /* Name.Builtin */
+.highlight-ipynb .nc { color: #0000FF; font-weight: bold } /* Name.Class */
+.highlight-ipynb .no { color: #880000 } /* Name.Constant */
+.highlight-ipynb .nd { color: #AA22FF } /* Name.Decorator */
+.highlight-ipynb .ni { color: #999999; font-weight: bold } /* Name.Entity */
+.highlight-ipynb .ne { color: #D2413A; font-weight: bold } /* Name.Exception */
+.highlight-ipynb .nf { color: #0000FF } /* Name.Function */
+.highlight-ipynb .nl { color: #A0A000 } /* Name.Label */
+.highlight-ipynb .nn { color: #0000FF; font-weight: bold } /* Name.Namespace */
+.highlight-ipynb .nt { color: #008000; font-weight: bold } /* Name.Tag */
+.highlight-ipynb .nv { color: #19177C } /* Name.Variable */
+.highlight-ipynb .ow { color: #AA22FF; font-weight: bold } /* Operator.Word */
+.highlight-ipynb .w { color: #bbbbbb } /* Text.Whitespace */
+.highlight-ipynb .mf { color: #666666 } /* Literal.Number.Float */
+.highlight-ipynb .mh { color: #666666 } /* Literal.Number.Hex */
+.highlight-ipynb .mi { color: #666666 } /* Literal.Number.Integer */
+.highlight-ipynb .mo { color: #666666 } /* Literal.Number.Oct */
+.highlight-ipynb .sb { color: #BA2121 } /* Literal.String.Backtick */
+.highlight-ipynb .sc { color: #BA2121 } /* Literal.String.Char */
+.highlight-ipynb .sd { color: #BA2121; font-style: italic } /* Literal.String.Doc */
+.highlight-ipynb .s2 { color: #BA2121 } /* Literal.String.Double */
+.highlight-ipynb .se { color: #BB6622; font-weight: bold } /* Literal.String.Escape */
+.highlight-ipynb .sh { color: #BA2121 } /* Literal.String.Heredoc */
+.highlight-ipynb .si { color: #BB6688; font-weight: bold } /* Literal.String.Interpol */
+.highlight-ipynb .sx { color: #008000 } /* Literal.String.Other */
+.highlight-ipynb .sr { color: #BB6688 } /* Literal.String.Regex */
+.highlight-ipynb .s1 { color: #BA2121 } /* Literal.String.Single */
+.highlight-ipynb .ss { color: #19177C } /* Literal.String.Symbol */
+.highlight-ipynb .bp { color: #008000 } /* Name.Builtin.Pseudo */
+.highlight-ipynb .vc { color: #19177C } /* Name.Variable.Class */
+.highlight-ipynb .vg { color: #19177C } /* Name.Variable.Global */
+.highlight-ipynb .vi { color: #19177C } /* Name.Variable.Instance */
+.highlight-ipynb .il { color: #666666 } /* Literal.Number.Integer.Long */
+</style>
+
+<style type="text/css">
+/* Overrides of notebook CSS for static HTML export */
+div.entry-content {
+  overflow: visible;
+  padding: 8px;
+}
+.input_area {
+  padding: 0.2em;
+}
+
+a.heading-anchor {
+ white-space: normal;
+}
+
+.rendered_html
+code {
+ font-size: .8em;
+}
+
+pre.ipynb {
+  color: black;
+  background: #f7f7f7;
+  border: none;
+  box-shadow: none;
+  margin-bottom: 0;
+  padding: 0;
+  margin: 0px;
+  font-size: 13px;
+}
+
+/* remove the prompt div from text cells */
+div.text_cell .prompt {
+    display: none;
+}
+
+/* remove horizontal padding from text cells, */
+/* so it aligns with outer body text */
+div.text_cell_render {
+    padding: 0.5em 0em;
+}
+
+img.anim_icon{padding:0; border:0; vertical-align:middle; -webkit-box-shadow:none; -box-shadow:none}
+</style>
+
+<script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/latest/MathJax.js?config=TeX-AMS_HTML" type="text/javascript"></script>
+<script type="text/javascript">
+init_mathjax = function() {
+    if (window.MathJax) {
+        // MathJax loaded
+        MathJax.Hub.Config({
+            tex2jax: {
+                inlineMath: [ ['$','$'], ["\\(","\\)"] ],
+                displayMath: [ ['$$','$$'], ["\\[","\\]"] ]
+            },
+            displayAlign: 'left', // Change this to 'center' to center equations.
+            "HTML-CSS": {
+                styles: {'.MathJax_Display': {"margin": 0}}
+            }
+        });
+        MathJax.Hub.Queue(["Typeset",MathJax.Hub]);
+    }
+}
+init_mathjax();
+</script>
+    <link href="http://morphogenie.fr/images/favicon.png" rel="icon">
+
+<link rel="canonical" href="http://morphogenie.fr/comparaison_modeles.html">
+
+        <meta name="author" content="Guillaume Gay" />
+        <meta name="keywords" content="modeling,epithelium,tyssue,fr" />
+        <meta name="description" content="Ce post a pour objectif de discuter les différentes stratégies de modélisation d’un tissu biologique." />
+
+
+
+    <!-- Bootstrap -->
+        <link rel="stylesheet" href="http://morphogenie.fr/theme/css/bootstrap.cosmo.min.css" type="text/css"/>
+    <link href="http://morphogenie.fr/theme/css/font-awesome.min.css" rel="stylesheet">
+
+    <link href="http://morphogenie.fr/theme/css/pygments/native.css" rel="stylesheet">
+        <link href="http://morphogenie.fr/theme/css/typogrify.css" rel="stylesheet">
+    <link rel="stylesheet" href="http://morphogenie.fr/theme/css/style.css" type="text/css"/>
+
+        <link href="http://morphogenie.fr/feeds/all.atom.xml" type="application/atom+xml" rel="alternate"
+              title="Morphogénie Logiciels ATOM Feed"/>
+
+</head>
+<body>
+
+<div class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="container">
+      <div class="navbar-left">
+            <a href="http://morphogenie.fr/" class="navbar-brand">
+<img align="left" src="http://morphogenie.fr/images/logo_blackbg.png" width=""/>             </a>
+      </div>
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+        </div>
+        <div class="collapse navbar-collapse navbar-ex1-collapse">
+            <ul class="nav navbar-nav">
+                    <li><a href="/pages/aboutus.html">About Morphogénie</a></li>
+                    <li><a href="/pages/projects.html">Projects</a></li>
+                    <li><a href="/pages/what-we-do.html">Services</a></li>
+                    <li><a href="/pages/tools.html">Tools</a></li>
+                    <li><a href="/pages/contact.html">Contact</a></li>
+                        <li class="active">
+                            <a href="http://morphogenie.fr/category/misc.html">Misc</a>
+                        </li>
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                <li><a href="http://morphogenie.fr/archives.html"><i class="fa fa-th-list"></i><span class="icon-label">Archives</span></a></li>
+            </ul>
+        </div>
+        <!-- /.navbar-collapse -->
+    </div>
+</div> <!-- /.navbar -->
+
+<div class="container">
+    <div class="row">
+        <div class="col-sm-9">
+
+    <section id="content">
+        <article>
+            <header class="page-header">
+                <h1>
+                    <a href="http://morphogenie.fr/comparaison_modeles.html"
+                       rel="bookmark"
+                       title="Permalink to Un tour des différentes méthodes de modélisation">
+                        Un tour des différentes méthodes de&nbsp;modélisation
+                    </a>
+                </h1>
+            </header>
+            <div class="entry-content">
+                <div class="panel">
+                    <div class="panel-body">
+<footer class="post-info">
+    <span class="label label-default">Date</span>
+    <span class="published">
+        <i class="fa fa-calendar"></i><time datetime="2015-08-16T00:00:00+02:00"> dim. 16 août 2015</time>
+    </span>
+
+
+
+<span class="label label-default">Tags</span>
+	<a href="http://morphogenie.fr/tag/modeling.html">modeling</a>
+        /
+	<a href="http://morphogenie.fr/tag/epithelium.html">epithelium</a>
+        /
+	<a href="http://morphogenie.fr/tag/tyssue.html">tyssue</a>
+        /
+	<a href="http://morphogenie.fr/tag/fr.html">fr</a>
+    
+</footer><!-- /.post-info -->                    </div>
+                </div>
+                <p>Ce texte est un travail en cours. N&#8217;hésitez pas à commenter ci-dessous pour m&#8217;aider à l&#8217;améliorer.
+J&#8217;essaierai peu à peu de sortir du style&nbsp;télégraphique.</p>
+<h2>Comparaison des différentes classes de modèles de&nbsp;tissus</h2>
+<p>Basé principalement sur la revue de
+<a href="http://dx.doi.org/10.1016/j.jbiomech.2009.09.010"><span class="caps">L.A.</span> Davidson et al. / Journal of Biomechanics 43 (2010)&nbsp;63–70</a></p>
+<p>L.A Davidson et ses collègues distinguent trois grandes classes de&nbsp;modèles:</p>
+<ol>
+<li>Modèle de Potts&nbsp;cellulaire</li>
+<li>Modèles de type <em>vertex</em></li>
+<li>Modèle en éléments&nbsp;finis</li>
+</ol>
+<h3>Modèles de type <em>vertex</em></h3>
+<p>C&#8217;est le modèle utilisé actuellement pour les simulations de formation du&nbsp;pli.</p>
+<p><img alt="Vertex model" src="images/3D_vertex_geometry.svg"></p>
+<p>Aspects&nbsp;positifs:</p>
+<ul>
+<li>Facile à saisir et à implémenter (peu de&nbsp;paramètres)</li>
+<li>Relation très directe image <span class="math">\(\leftrightarrow\)</span>&nbsp;simulation</li>
+<li>Adapté pour l&#8217;organisation appicale de cellules épithéliales&nbsp;jointives</li>
+<li>Adapté à des topologies&nbsp;dynamiques</li>
+</ul>
+<p>Aspects&nbsp;négatifs:</p>
+<ul>
+<li>Limité à des cellules jointives: pas de délamination, par&nbsp;exemple.</li>
+<li>Tout se passe au niveau des&nbsp;jonctions.</li>
+<li>Peu adapté à la prise en compte des événements&nbsp;baso-latéraux.</li>
+<li>Difficile d&#8217;inclure des interactions hors du&nbsp;maillage.</li>
+<li>Physique peu&nbsp;détaillée.</li>
+</ul>
+<h3>Modèle de Potts&nbsp;cellulaire</h3>
+<p>Dans cette classe de modèles, l&#8217;espace est divisé en cubes de taille
+petite devant la taille des cellules. Chaque cube est assigné à une
+cellule, et on minimise une énergie sur les faces des cubes, en
+fonction de leur voisinage (intra-cellulaire / interface). On peut
+l&#8217;envisager comme un système&nbsp;multi-agents.</p>
+<p>Aspects&nbsp;positifs:</p>
+<ul>
+<li>De nombreuses implémentations existent déjà, facile à mettre en&nbsp;œuvre</li>
+<li>Adapté à la modélisation de la migration cellulaire dans des approches
+  en termes de populations de&nbsp;cellules.</li>
+<li>Grande souplesse dans la modélisation des&nbsp;intéractions</li>
+</ul>
+<p>Aspects&nbsp;négatifs:</p>
+<ul>
+<li>Mal adapté à des géométries&nbsp;complexes</li>
+<li>Mal adapté à la modélisation des&nbsp;interfaces</li>
+<li><span class="dquo">&#8220;</span>Loin&#8221; des détails bio-physiques des intéractions&nbsp;cellule-cellule</li>
+<li>Grande souplesse dans la modélisation des&nbsp;intéractions</li>
+</ul>
+<p><img alt="Cellular Potts model" src="images/potts_model.png"></p>
+<h3>Méthodes par éléments&nbsp;finis</h3>
+<p>C&#8217;est la discrétisation d&#8217;un système d&#8217;équations continues dans l&#8217;espace.
+Dans le cas de la modélisation d&#8217;une <strong>couche</strong>, apicale par exemple,
+la discrétisation est effectuée en découpant le tissu en faces&nbsp;triangulaires.</p>
+<p>Le maillage est <strong>plus fin</strong> que dans le modèle vertex. Contrairement
+au modèle de Potts, il est <strong>adaptable</strong>, de manière à décrire plus
+finement le milieu au voisinage des points de forte variations, par
+example aux interfaces cellule -&nbsp;cellule.</p>
+<p>Aspects&nbsp;positifs:</p>
+<ul>
+<li>Adapté aux problèmes&nbsp;continus</li>
+<li>Fidélité à la&nbsp;géométrie</li>
+<li>Proximité avec la réalité biophysique du&nbsp;tissu</li>
+</ul>
+<p>Aspects&nbsp;négatifs:</p>
+<ul>
+<li>Gourmant en temps de calcul (et en temps&nbsp;d&#8217;optimisation)</li>
+<li>La segementation n&#8217;est pas triviale (maillage régulier ou adaptatif,&nbsp;etc.)</li>
+</ul>
+<p><img alt="Finite elements" src="images/finite_elements.png"></p>
+<p>Reste à&nbsp;aborder:</p>
+<ul>
+<li>Détailler la physique des méthodes en milieu&nbsp;continu</li>
+<li>Inclure des exemples pour chaque&nbsp;méthode</li>
+<li>Rédiger une&nbsp;introduction</li>
+</ul>
+<script type="text/javascript">if (!document.getElementById('mathjaxscript_pelican_#%@#$@#')) {
+    var align = "center",
+        indent = "0em",
+        linebreak = "false";
+
+    if (false) {
+        align = (screen.width < 768) ? "left" : align;
+        indent = (screen.width < 768) ? "0em" : indent;
+        linebreak = (screen.width < 768) ? 'true' : linebreak;
+    }
+
+    var mathjaxscript = document.createElement('script');
+    mathjaxscript.id = 'mathjaxscript_pelican_#%@#$@#';
+    mathjaxscript.type = 'text/javascript';
+    mathjaxscript.src = 'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.0/MathJax.js?config=TeX-AMS-MML_HTMLorMML';
+    mathjaxscript[(window.opera ? "innerHTML" : "text")] =
+        "MathJax.Hub.Config({" +
+        "    config: ['MMLorHTML.js']," +
+        "    TeX: { extensions: ['AMSmath.js','AMSsymbols.js','noErrors.js','noUndefined.js'], equationNumbers: { autoNumber: 'AMS' } }," +
+        "    jax: ['input/TeX','input/MathML','output/HTML-CSS']," +
+        "    extensions: ['tex2jax.js','mml2jax.js','MathMenu.js','MathZoom.js']," +
+        "    displayAlign: '"+ align +"'," +
+        "    displayIndent: '"+ indent +"'," +
+        "    showMathMenu: true," +
+        "    messageStyle: 'normal'," +
+        "    tex2jax: { " +
+        "        inlineMath: [ ['\\\\(','\\\\)'] ], " +
+        "        displayMath: [ ['$$','$$'] ]," +
+        "        processEscapes: true," +
+        "        preview: 'TeX'," +
+        "    }, " +
+        "    'HTML-CSS': { " +
+        "        styles: { '.MathJax_Display, .MathJax .mo, .MathJax .mi, .MathJax .mn': {color: 'inherit ! important'} }," +
+        "        linebreaks: { automatic: "+ linebreak +", width: '90% container' }," +
+        "    }, " +
+        "}); " +
+        "if ('default' !== 'default') {" +
+            "MathJax.Hub.Register.StartupHook('HTML-CSS Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax['HTML-CSS'].FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+            "MathJax.Hub.Register.StartupHook('SVG Jax Ready',function () {" +
+                "var VARIANT = MathJax.OutputJax.SVG.FONTDATA.VARIANT;" +
+                "VARIANT['normal'].fonts.unshift('MathJax_default');" +
+                "VARIANT['bold'].fonts.unshift('MathJax_default-bold');" +
+                "VARIANT['italic'].fonts.unshift('MathJax_default-italic');" +
+                "VARIANT['-tex-mathit'].fonts.unshift('MathJax_default-italic');" +
+            "});" +
+        "}";
+    (document.body || document.getElementsByTagName('head')[0]).appendChild(mathjaxscript);
+}
+</script>
+            </div>
+            <!-- /.entry-content -->
+    <hr/>
+    <section class="comments" id="comments">
+        <h2>Comments</h2>
+
+        <div id="disqus_thread"></div>
+        <script type="text/javascript">
+            /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+            var disqus_shortname = 'damcellbiology'; // required: replace example with your forum shortname
+
+                    var disqus_identifier = 'comparaison_modeles';
+                var disqus_url = 'http://morphogenie.fr/comparaison_modeles.html';
+
+            var disqus_config = function () {
+                this.language = "fr";
+            };
+
+            /* * * DON'T EDIT BELOW THIS LINE * * */
+            (function () {
+                var dsq = document.createElement('script');
+                dsq.type = 'text/javascript';
+                dsq.async = true;
+                dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+                (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+            })();
+        </script>
+        <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by
+            Disqus.</a></noscript>
+        <a href="http://disqus.com" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+
+    </section>
+        </article>
+    </section>
+
+        </div>
+        <div class="col-sm-3 well well-sm" id="sidebar">
+
+<aside>
+    <section>
+        <ul class="list-group list-group-flush">
+    <li class="list-group-item"><h4><i class="fa fa-external-link-square fa-lg"></i><span class="icon-label">Links</span></h4>
+      <ul class="list-group" id="links">
+        <li class="list-group-item">
+            <a href="http://scipy.org/" target="_blank">
+                Scipy
+            </a>
+        </li>
+        <li class="list-group-item">
+            <a href="http://python.org/" target="_blank">
+                Python.org
+            </a>
+        </li>
+      </ul>
+    </li>
+                <li class="list-group-item"><h4><i class="fa fa-home fa-lg"></i><span class="icon-label">Social</span></h4>
+                  <ul class="list-group" id="social">
+                    <li class="list-group-item"><a href="https://github.com/DamCB"><i class="fa fa-github-square fa-lg"></i> GitHub</a></li>
+                    <li class="list-group-item"><a href="https://twitter.com/MorphoLG"><i class="fa fa-twitter-square fa-lg"></i> Twitter</a></li>
+                  </ul>
+                </li>
+
+
+
+                <li class="list-group-item"><a href="http://morphogenie.fr/"><h4><i class="fa fa-tags fa-lg"></i><span class="icon-label">Tags</span></h4></a>
+                    <ul class="list-group " id="tags">
+                    </ul>
+                </li>
+
+        </ul>
+    </section>
+
+</aside>        </div>
+    </div>
+</div>
+<footer>
+   <div class="container">
+      <hr>
+      <div class="row">
+         <div class="col-xs-10">&copy; 2016 Guillaume Gay
+            &middot; Powered by <a href="https://github.com/DandyDev/pelican-bootstrap3" target="_blank">pelican-bootstrap3</a>,
+            <a href="http://docs.getpelican.com/" target="_blank">Pelican</a>,
+            <a href="http://getbootstrap.com" target="_blank">Bootstrap</a>         </div>
+         <div class="col-xs-2"><p class="pull-right"><i class="fa fa-arrow-up"></i> <a href="#">Back to top</a></p></div>
+      </div>
+   </div>
+</footer>
+<script src="http://morphogenie.fr/theme/js/jquery.min.js"></script>
+
+<!-- Include all compiled plugins (below), or include individual files as needed -->
+<script src="http://morphogenie.fr/theme/js/bootstrap.min.js"></script>
+
+<!-- Enable responsive features in IE8 with Respond.js (https://github.com/scottjehl/Respond) -->
+<script src="http://morphogenie.fr/theme/js/respond.min.js"></script>
+
+    <!-- Disqus -->
+    <script type="text/javascript">
+        /* * * CONFIGURATION VARIABLES: EDIT BEFORE PASTING INTO YOUR WEBPAGE * * */
+        var disqus_shortname = 'damcellbiology'; // required: replace example with your forum shortname
+
+        /* * * DON'T EDIT BELOW THIS LINE * * */
+        (function () {
+            var s = document.createElement('script');
+            s.async = true;
+            s.type = 'text/javascript';
+            s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+            (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+        }());
+    </script>
+    <!-- End Disqus Code -->
+</body>
+</html>
